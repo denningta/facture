@@ -1,0 +1,16 @@
+{
+  "Inspection": {
+    "prefix": "Inspection",
+    "body": [
+      "Inspection ${1:inspection-number}: ${2:inspection-ID} {",
+      "\tqualification: ${3|manufacturing,quality|}",
+      "\ttype: ${4|witness,verification|}\n",
+      "\t$0\n",
+      "}"
+    ]
+  },
+  "Reference": {
+    "prefix": "ref",
+    "body": "ref ${1|Process,Inspection|} $0"
+  }
+}

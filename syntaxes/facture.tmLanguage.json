@@ -1,0 +1,57 @@
+{
+  "name": "facture",
+  "scopeName": "source.facture",
+  "fileTypes": [
+    ".fac"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "name": "keyword.control.facture",
+      "match": "\\b(define|Inspection|Instruction|manufacturing|Procedure|Process|qualification|quality|ref|Section|Specification|Step|type|verification|witness)\\b|\\B(</warning>|<warning>)\\B"
+    },
+    {
+      "name": "string.quoted.double.facture",
+      "begin": "\"",
+      "end": "\""
+    },
+    {
+      "name": "string.quoted.single.facture",
+      "begin": "'",
+      "end": "'"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.facture",
+          "begin": "/\\*",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.facture"
+            }
+          },
+          "end": "\\*/",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.facture"
+            }
+          }
+        },
+        {
+          "begin": "//",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.whitespace.comment.leading.facture"
+            }
+          },
+          "end": "(?=$)",
+          "name": "comment.line.facture"
+        }
+      ]
+    }
+  }
+}
