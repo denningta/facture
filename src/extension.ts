@@ -3,12 +3,19 @@ import * as path from 'path';
 import {
     LanguageClient, LanguageClientOptions, ServerOptions, TransportKind
 } from 'vscode-languageclient/node';
+import { initFacturePreview } from './preview';
 
 let client: LanguageClient;
 
 // This function is called when the extension is activated.
 export function activate(context: vscode.ExtensionContext): void {
+    const activeFileName = vscode.window.activeTextEditor?.document.fileName
+    context.subscriptions.push(
+        vscode.commands.registerCommand('facturePreview.start', () => initFacturePreview(activeFileName)),
+    )
+
     client = startLanguageClient(context);
+
 }
 
 // This function is called when the extension is deactivated.

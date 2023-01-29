@@ -4,8 +4,9 @@ import { Model } from '../language-server/generated/ast';
 import { FactureLanguageMetaData } from '../language-server/generated/module';
 import { createFactureServices } from '../language-server/facture-module';
 import { extractAstNode } from './cli-util';
-import { generateJavaScript } from './generator';
+import { generate, generateJavaScript } from './generator';
 import { NodeFileSystem } from 'langium/node';
+import { toString } from 'langium';
 
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createFactureServices(NodeFileSystem).Facture;
@@ -13,6 +14,12 @@ export const generateAction = async (fileName: string, opts: GenerateOptions): P
     const generatedFilePath = generateJavaScript(model, fileName, opts.destination);
     console.log(chalk.green(`JavaScript code generated successfully: ${generatedFilePath}`));
 };
+
+export const generateActionProgramatic = async (fileName: string): Promise<string> => {
+    const services = createFactureServices(NodeFileSystem).Facture
+    const model = await extractAstNode<Model>(fileName, services)
+    return toString(generate(model))
+}
 
 export type GenerateOptions = {
     destination?: string;
