@@ -6,135 +6,69 @@
 /* eslint-disable */
 import { AstNode, AbstractAstReflection, Reference, ReferenceInfo, TypeMetaData } from 'langium';
 
-export type Markdown = BlockQuote | Bold | Header1 | Italic | ListItem | Paragraph | Warning;
+export type FeatureName = string;
 
-export const Markdown = 'Markdown';
+export type PrimitiveType = 'Date' | 'bigint' | 'boolean' | 'number' | 'string';
 
-export function isMarkdown(item: unknown): item is Markdown {
-    return reflection.isInstance(item, Markdown);
+export interface AtomType extends AstNode {
+    readonly $container: TypeAttribute;
+    readonly $type: 'AtomType';
+    isArray: boolean
+    isDefinition: boolean
+    keywordType?: Keyword
+    primitiveType?: PrimitiveType
+    refType?: Reference<Interface>
 }
 
-export interface BlockQuote extends AstNode {
-    readonly $container: Inspection | Process | Section | Step | Warning;
-    readonly $type: 'BlockQuote';
-    text: PlainText
+export const AtomType = 'AtomType';
+
+export function isAtomType(item: unknown): item is AtomType {
+    return reflection.isInstance(item, AtomType);
 }
 
-export const BlockQuote = 'BlockQuote';
-
-export function isBlockQuote(item: unknown): item is BlockQuote {
-    return reflection.isInstance(item, BlockQuote);
-}
-
-export interface Bold extends AstNode {
-    readonly $container: Inspection | Process | Section | Step | Warning;
-    readonly $type: 'Bold';
-    text: PlainText
-}
-
-export const Bold = 'Bold';
-
-export function isBold(item: unknown): item is Bold {
-    return reflection.isInstance(item, Bold);
-}
-
-export interface DocumentType extends AstNode {
-    readonly $container: Model;
-    readonly $type: 'DocumentType';
-    class: 'Process'
+export interface GenericObject extends AstNode {
+    readonly $container: Model | ObjectDef;
+    readonly $type: 'GenericObject';
+    interface: Reference<Interface>
     name: string
-    type: 'Instruction' | 'Specification'
+    properties: Array<Property>
 }
 
-export const DocumentType = 'DocumentType';
+export const GenericObject = 'GenericObject';
 
-export function isDocumentType(item: unknown): item is DocumentType {
-    return reflection.isInstance(item, DocumentType);
+export function isGenericObject(item: unknown): item is GenericObject {
+    return reflection.isInstance(item, GenericObject);
 }
 
-export interface Header extends AstNode {
-    readonly $container: Header1;
-    readonly $type: 'Header';
-    text: PlainText
-}
-
-export const Header = 'Header';
-
-export function isHeader(item: unknown): item is Header {
-    return reflection.isInstance(item, Header);
-}
-
-export interface Header1 extends AstNode {
-    readonly $container: Inspection | Process | Section | Step | Warning;
-    readonly $type: 'Header1';
-    content: Header
-}
-
-export const Header1 = 'Header1';
-
-export function isHeader1(item: unknown): item is Header1 {
-    return reflection.isInstance(item, Header1);
-}
-
-export interface Inspection extends AstNode {
+export interface Interface extends AstNode {
     readonly $container: Model;
-    readonly $type: 'Inspection' | 'InspectionQualification' | 'InspectionType';
-    markdown: Array<Markdown>
+    readonly $type: 'Interface';
+    attributes: Array<TypeAttribute>
     name: string
-    number: number
-    steps: Array<Step>
 }
 
-export const Inspection = 'Inspection';
+export const Interface = 'Interface';
 
-export function isInspection(item: unknown): item is Inspection {
-    return reflection.isInstance(item, Inspection);
+export function isInterface(item: unknown): item is Interface {
+    return reflection.isInstance(item, Interface);
 }
 
-export interface InspectionRef extends AstNode {
-    readonly $container: Procedure;
-    readonly $type: 'InspectionRef';
-    reference: Reference<Inspection>
+export interface Keyword extends AstNode {
+    readonly $container: AtomType;
+    readonly $type: 'Keyword';
+    value: string
 }
 
-export const InspectionRef = 'InspectionRef';
+export const Keyword = 'Keyword';
 
-export function isInspectionRef(item: unknown): item is InspectionRef {
-    return reflection.isInstance(item, InspectionRef);
-}
-
-export interface Italic extends AstNode {
-    readonly $container: Inspection | Process | Section | Step | Warning;
-    readonly $type: 'Italic';
-    text: PlainText
-}
-
-export const Italic = 'Italic';
-
-export function isItalic(item: unknown): item is Italic {
-    return reflection.isInstance(item, Italic);
-}
-
-export interface ListItem extends AstNode {
-    readonly $container: Inspection | Process | Section | Step | Warning;
-    readonly $type: 'ListItem';
-    index?: number
-    text: PlainText
-}
-
-export const ListItem = 'ListItem';
-
-export function isListItem(item: unknown): item is ListItem {
-    return reflection.isInstance(item, ListItem);
+export function isKeyword(item: unknown): item is Keyword {
+    return reflection.isInstance(item, Keyword);
 }
 
 export interface Model extends AstNode {
     readonly $type: 'Model';
-    documentType: DocumentType
-    inspections: Array<Inspection>
-    procedures: Array<Procedure>
-    processes: Array<Process>
-    sections: Array<Section>
+    interfaces: Array<Interface>
+    objects: Array<GenericObject>
 }
 
 export const Model = 'Model';
@@ -143,180 +77,104 @@ export function isModel(item: unknown): item is Model {
     return reflection.isInstance(item, Model);
 }
 
-export interface Paragraph extends AstNode {
-    readonly $container: Inspection | Process | Section | Step | Warning;
-    readonly $type: 'Paragraph';
-    text: PlainText
+export interface ObjectArrayRef extends AstNode {
+    readonly $container: Property;
+    readonly $type: 'ObjectArrayRef';
+    objects: Array<Reference<GenericObject>>
 }
 
-export const Paragraph = 'Paragraph';
+export const ObjectArrayRef = 'ObjectArrayRef';
 
-export function isParagraph(item: unknown): item is Paragraph {
-    return reflection.isInstance(item, Paragraph);
+export function isObjectArrayRef(item: unknown): item is ObjectArrayRef {
+    return reflection.isInstance(item, ObjectArrayRef);
 }
 
-export interface PlainText extends AstNode {
-    readonly $container: BlockQuote | Bold | Header | Italic | ListItem | Paragraph;
-    readonly $type: 'PlainText';
-    text: Array<number | string>
+export interface ObjectDef extends AstNode {
+    readonly $container: Property;
+    readonly $type: 'ObjectDef';
+    objects: Array<GenericObject>
+    type: 'ObjectDef'
 }
 
-export const PlainText = 'PlainText';
+export const ObjectDef = 'ObjectDef';
 
-export function isPlainText(item: unknown): item is PlainText {
-    return reflection.isInstance(item, PlainText);
+export function isObjectDef(item: unknown): item is ObjectDef {
+    return reflection.isInstance(item, ObjectDef);
 }
 
-export interface Procedure extends AstNode {
-    readonly $container: Model;
-    readonly $type: 'Procedure';
-    name: string
-    number: number
-    processes: Array<InspectionRef | ProcessRef>
+export interface ObjectRef extends AstNode {
+    readonly $container: Property;
+    readonly $type: 'ObjectRef';
+    object: Reference<GenericObject>
 }
 
-export const Procedure = 'Procedure';
+export const ObjectRef = 'ObjectRef';
 
-export function isProcedure(item: unknown): item is Procedure {
-    return reflection.isInstance(item, Procedure);
+export function isObjectRef(item: unknown): item is ObjectRef {
+    return reflection.isInstance(item, ObjectRef);
 }
 
-export interface Process extends AstNode {
-    readonly $container: Model;
-    readonly $type: 'Process';
-    markdown: Array<Markdown>
-    name: string
-    number: number
-    steps: Array<Step>
+export interface Property extends AstNode {
+    readonly $container: GenericObject;
+    readonly $type: 'Property';
+    name: FeatureName
+    value: ObjectArrayRef | ObjectDef | ObjectRef | StringValue
 }
 
-export const Process = 'Process';
+export const Property = 'Property';
 
-export function isProcess(item: unknown): item is Process {
-    return reflection.isInstance(item, Process);
+export function isProperty(item: unknown): item is Property {
+    return reflection.isInstance(item, Property);
 }
 
-export interface ProcessRef extends AstNode {
-    readonly $container: Procedure;
-    readonly $type: 'ProcessRef';
-    reference: Reference<Process>
+export interface StringValue extends AstNode {
+    readonly $container: Property;
+    readonly $type: 'StringValue';
+    string: string
 }
 
-export const ProcessRef = 'ProcessRef';
+export const StringValue = 'StringValue';
 
-export function isProcessRef(item: unknown): item is ProcessRef {
-    return reflection.isInstance(item, ProcessRef);
+export function isStringValue(item: unknown): item is StringValue {
+    return reflection.isInstance(item, StringValue);
 }
 
-export interface Section extends AstNode {
-    readonly $container: Model | Section;
-    readonly $type: 'Section';
-    markdwon: Array<Markdown>
-    name: string
-    number: number
-    subSections: Array<Section>
+export interface TypeAttribute extends AstNode {
+    readonly $container: Interface;
+    readonly $type: 'TypeAttribute';
+    isOptional: boolean
+    name: FeatureName
+    typeAlternatives: Array<AtomType>
 }
 
-export const Section = 'Section';
+export const TypeAttribute = 'TypeAttribute';
 
-export function isSection(item: unknown): item is Section {
-    return reflection.isInstance(item, Section);
-}
-
-export interface Step extends AstNode {
-    readonly $container: Inspection | Process;
-    readonly $type: 'Step';
-    markdown: Array<Markdown>
-    number: number
-}
-
-export const Step = 'Step';
-
-export function isStep(item: unknown): item is Step {
-    return reflection.isInstance(item, Step);
-}
-
-export interface Warning extends AstNode {
-    readonly $container: Inspection | Process | Section | Step | Warning;
-    readonly $type: 'Warning';
-    content: Array<Markdown>
-}
-
-export const Warning = 'Warning';
-
-export function isWarning(item: unknown): item is Warning {
-    return reflection.isInstance(item, Warning);
-}
-
-export interface InspectionQualification extends Inspection {
-    readonly $container: Model;
-    readonly $type: 'InspectionQualification';
-    qualification: 'manufacturing' | 'quality'
-}
-
-export const InspectionQualification = 'InspectionQualification';
-
-export function isInspectionQualification(item: unknown): item is InspectionQualification {
-    return reflection.isInstance(item, InspectionQualification);
-}
-
-export interface InspectionType extends Inspection {
-    readonly $container: Model;
-    readonly $type: 'InspectionType';
-    inspectionType: 'verification' | 'witness'
-}
-
-export const InspectionType = 'InspectionType';
-
-export function isInspectionType(item: unknown): item is InspectionType {
-    return reflection.isInstance(item, InspectionType);
+export function isTypeAttribute(item: unknown): item is TypeAttribute {
+    return reflection.isInstance(item, TypeAttribute);
 }
 
 export interface FactureAstType {
-    BlockQuote: BlockQuote
-    Bold: Bold
-    DocumentType: DocumentType
-    Header: Header
-    Header1: Header1
-    Inspection: Inspection
-    InspectionQualification: InspectionQualification
-    InspectionRef: InspectionRef
-    InspectionType: InspectionType
-    Italic: Italic
-    ListItem: ListItem
-    Markdown: Markdown
+    AtomType: AtomType
+    GenericObject: GenericObject
+    Interface: Interface
+    Keyword: Keyword
     Model: Model
-    Paragraph: Paragraph
-    PlainText: PlainText
-    Procedure: Procedure
-    Process: Process
-    ProcessRef: ProcessRef
-    Section: Section
-    Step: Step
-    Warning: Warning
+    ObjectArrayRef: ObjectArrayRef
+    ObjectDef: ObjectDef
+    ObjectRef: ObjectRef
+    Property: Property
+    StringValue: StringValue
+    TypeAttribute: TypeAttribute
 }
 
 export class FactureAstReflection extends AbstractAstReflection {
 
     getAllTypes(): string[] {
-        return ['BlockQuote', 'Bold', 'DocumentType', 'Header', 'Header1', 'Inspection', 'InspectionQualification', 'InspectionRef', 'InspectionType', 'Italic', 'ListItem', 'Markdown', 'Model', 'Paragraph', 'PlainText', 'Procedure', 'Process', 'ProcessRef', 'Section', 'Step', 'Warning'];
+        return ['AtomType', 'GenericObject', 'Interface', 'Keyword', 'Model', 'ObjectArrayRef', 'ObjectDef', 'ObjectRef', 'Property', 'StringValue', 'TypeAttribute'];
     }
 
     protected override computeIsSubtype(subtype: string, supertype: string): boolean {
         switch (subtype) {
-            case BlockQuote:
-            case Bold:
-            case Header1:
-            case Italic:
-            case ListItem:
-            case Paragraph:
-            case Warning: {
-                return this.isSubtype(Markdown, supertype);
-            }
-            case InspectionQualification:
-            case InspectionType: {
-                return this.isSubtype(Inspection, supertype);
-            }
             default: {
                 return false;
             }
@@ -326,11 +184,13 @@ export class FactureAstReflection extends AbstractAstReflection {
     getReferenceType(refInfo: ReferenceInfo): string {
         const referenceId = `${refInfo.container.$type}:${refInfo.property}`;
         switch (referenceId) {
-            case 'InspectionRef:reference': {
-                return Inspection;
+            case 'AtomType:refType':
+            case 'GenericObject:interface': {
+                return Interface;
             }
-            case 'ProcessRef:reference': {
-                return Process;
+            case 'ObjectArrayRef:objects':
+            case 'ObjectRef:object': {
+                return GenericObject;
             }
             default: {
                 throw new Error(`${referenceId} is not a valid reference id.`);
@@ -340,12 +200,28 @@ export class FactureAstReflection extends AbstractAstReflection {
 
     getTypeMetaData(type: string): TypeMetaData {
         switch (type) {
-            case 'Inspection': {
+            case 'AtomType': {
                 return {
-                    name: 'Inspection',
+                    name: 'AtomType',
                     mandatory: [
-                        { name: 'markdown', type: 'array' },
-                        { name: 'steps', type: 'array' }
+                        { name: 'isArray', type: 'boolean' },
+                        { name: 'isDefinition', type: 'boolean' }
+                    ]
+                };
+            }
+            case 'GenericObject': {
+                return {
+                    name: 'GenericObject',
+                    mandatory: [
+                        { name: 'properties', type: 'array' }
+                    ]
+                };
+            }
+            case 'Interface': {
+                return {
+                    name: 'Interface',
+                    mandatory: [
+                        { name: 'attributes', type: 'array' }
                     ]
                 };
             }
@@ -353,78 +229,33 @@ export class FactureAstReflection extends AbstractAstReflection {
                 return {
                     name: 'Model',
                     mandatory: [
-                        { name: 'inspections', type: 'array' },
-                        { name: 'procedures', type: 'array' },
-                        { name: 'processes', type: 'array' },
-                        { name: 'sections', type: 'array' }
+                        { name: 'interfaces', type: 'array' },
+                        { name: 'objects', type: 'array' }
                     ]
                 };
             }
-            case 'PlainText': {
+            case 'ObjectArrayRef': {
                 return {
-                    name: 'PlainText',
+                    name: 'ObjectArrayRef',
                     mandatory: [
-                        { name: 'text', type: 'array' }
+                        { name: 'objects', type: 'array' }
                     ]
                 };
             }
-            case 'Procedure': {
+            case 'ObjectDef': {
                 return {
-                    name: 'Procedure',
+                    name: 'ObjectDef',
                     mandatory: [
-                        { name: 'processes', type: 'array' }
+                        { name: 'objects', type: 'array' }
                     ]
                 };
             }
-            case 'Process': {
+            case 'TypeAttribute': {
                 return {
-                    name: 'Process',
+                    name: 'TypeAttribute',
                     mandatory: [
-                        { name: 'markdown', type: 'array' },
-                        { name: 'steps', type: 'array' }
-                    ]
-                };
-            }
-            case 'Section': {
-                return {
-                    name: 'Section',
-                    mandatory: [
-                        { name: 'markdwon', type: 'array' },
-                        { name: 'subSections', type: 'array' }
-                    ]
-                };
-            }
-            case 'Step': {
-                return {
-                    name: 'Step',
-                    mandatory: [
-                        { name: 'markdown', type: 'array' }
-                    ]
-                };
-            }
-            case 'Warning': {
-                return {
-                    name: 'Warning',
-                    mandatory: [
-                        { name: 'content', type: 'array' }
-                    ]
-                };
-            }
-            case 'InspectionQualification': {
-                return {
-                    name: 'InspectionQualification',
-                    mandatory: [
-                        { name: 'markdown', type: 'array' },
-                        { name: 'steps', type: 'array' }
-                    ]
-                };
-            }
-            case 'InspectionType': {
-                return {
-                    name: 'InspectionType',
-                    mandatory: [
-                        { name: 'markdown', type: 'array' },
-                        { name: 'steps', type: 'array' }
+                        { name: 'isOptional', type: 'boolean' },
+                        { name: 'typeAlternatives', type: 'array' }
                     ]
                 };
             }

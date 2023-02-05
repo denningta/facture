@@ -3,7 +3,7 @@
  * DO NOT EDIT MANUALLY!
  ******************************************************************************/
 
-import { LangiumGeneratedServices, LangiumGeneratedSharedServices, LangiumSharedServices, LangiumServices, LanguageMetaData, Module } from 'langium';
+import { LangiumGeneratedServices, LangiumGeneratedSharedServices, LangiumSharedServices, LangiumServices, LanguageMetaData, Module, IParserConfig } from 'langium';
 import { FactureAstReflection } from './ast';
 import { FactureGrammar } from './grammar';
 
@@ -13,6 +13,10 @@ export const FactureLanguageMetaData: LanguageMetaData = {
     caseInsensitive: false
 };
 
+export const FactureParserConfig: IParserConfig = {
+    maxLookahead: 3,
+};
+
 export const FactureGeneratedSharedModule: Module<LangiumSharedServices, LangiumGeneratedSharedServices> = {
     AstReflection: () => new FactureAstReflection()
 };
@@ -20,5 +24,7 @@ export const FactureGeneratedSharedModule: Module<LangiumSharedServices, Langium
 export const FactureGeneratedModule: Module<LangiumServices, LangiumGeneratedServices> = {
     Grammar: () => FactureGrammar(),
     LanguageMetaData: () => FactureLanguageMetaData,
-    parser: {}
+    parser: {
+        ParserConfig: () => FactureParserConfig
+    }
 };

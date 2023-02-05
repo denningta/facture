@@ -11,7 +11,8 @@
             "request": "launch",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}"
-            ]
+            ],
+            "autoAttachChildProcesses": true,
         },
         {
             "name": "Attach to Language Server",

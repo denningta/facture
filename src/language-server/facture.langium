@@ -1,94 +1,100 @@
 grammar Facture
 
 entry Model:
-    documentType=DocumentType
-    (NEWLINE | sections+=Section | procedures+=Procedure | processes+=Process | inspections+=Inspection)*;
+    EOL* 
+    (interfaces+=Interface | objects+=GenericObject)* 
+    EOL*;
+
+Interface:
+    'interface' name=ID
+    SchemaType;
+
+fragment SchemaType:
+    '{' attributes+=TypeAttribute* '}' ';'?;
+
+TypeAttribute:
+    name=FeatureName (isOptional?='?')? ':' TypeAlternatives ';'?;
+
+fragment TypeAlternatives:
+    typeAlternatives+=AtomType ('|' typeAlternatives+=AtomType)*;
+
+AtomType:
+    (primitiveType=PrimitiveType | refType=[Interface] | keywordType=Keyword) isArray?='[]'? isDefinition?='{}'?;
+
+PrimitiveType <> returns string:
+    'string' | 'number' | 'boolean' | 'Date' | 'bigint';
 
 
-DocumentType:
-    'define' class=('Process') type=('Instruction' | 'Specification') ':' name=ID+;
+FeatureName returns string:
+    'interface' | 'define' | PrimitiveType | ID;
 
-Section:
-    'Section' number=INT ':' name=ID '{' NEWLINE*
-        markdwon+=Markdown* NEWLINE*
-        subSections+=Section* NEWLINE*
-    '}';
+Keyword:
+    value=STRING;
 
-Procedure:
-    'Procedure' number=INT ':' name=ID '{' NEWLINE*
-        (processes+=(ProcessRef | InspectionRef) NEWLINE*)+
-    '}';
+GenericObject:
+    'define' interface=[Interface] name=(ID) '{' EOL*
+        properties+=Property* EOL*
+    '}' EOL*;
 
-ProcessRef:
-    'ref' 'Process' reference=[Process] NEWLINE*;
+Property:
+    name=(FeatureName) ':' value=(StringValue | ObjectRef | ObjectArrayRef | ObjectDef);
 
-InspectionRef:
-    'ref' 'Inspection' reference=[Inspection] NEWLINE*;
+StringValue:
+    string=STRING;
 
-Process:
-    'Process' number=INT ':' name=ID '{' NEWLINE*
-        (markdown+=Markdown | steps+=Step)* NEWLINE*
-    '}';
+ObjectRef:
+    object=[GenericObject] EOL*;
 
-Step:
-    'Step' number=INT '{' NEWLINE*
-        markdown+=Markdown* NEWLINE*
-    '}';
+ObjectArrayRef:
+    '[' EOL*
+        objects+=[GenericObject]* EOL* 
+    ']' EOL*;
 
-Inspection:
-    'Inspection' number=INT ':' name=ID '{' NEWLINE*
-        InspectionQualification NEWLINE*
-        InspectionType NEWLINE*
-        (markdown+=Markdown | steps+=Step)* NEWLINE*
-    '}';
+ObjectDef:
+    '{' EOL*
+        objects+=GenericObject* type='ObjectDef' EOL*
+    '}' EOL*;
 
-InspectionQualification:
-    'qualification' ':' qualification=('manufacturing' | 'quality') NEWLINE*;
+// Markdown:
+//     (ListItem | Bold | Italic | BlockQuote | Header1 | Paragraph | Warning);
 
-InspectionType:
-    'type' ':' inspectionType=('witness' | 'verification') NEWLINE*;
+// Header:
+//     text=PlainText;
 
 
-Markdown:
-    (ListItem | Bold | Italic | BlockQuote | Header1 | Paragraph | Warning);
+// Header1:
+//     '#' content=Header;
 
-Header:
-    text=PlainText NEWLINE*;
+// Bold:
+//     '**' text=PlainText '**';
 
-Header1:
-    '#' content=Header;
+// Italic:
+//     '*' text=PlainText '*';
 
-Bold:
-    '**' text=PlainText '**';
+// BlockQuote:
+//     '>' text=PlainText EOL*;
 
-Italic:
-    '*' text=PlainText '*';
+// ListItem:
+//     '-' index=INT? text=PlainText EOL*;
 
-BlockQuote:
-    '>' text=PlainText NEWLINE*;
+// Paragraph:
+//     text=PlainText EOL*;
 
-ListItem:
-    '-' index=INT? text=PlainText NEWLINE*;
+// Warning:
+//     '<warning>' EOL* 
+//         content+=Markdown* EOL*
+//     '</warning>' EOL*;
 
-Paragraph:
-    text=PlainText NEWLINE*;
-
-Warning:
-    '<warning>' NEWLINE* 
-        content+=Markdown* NEWLINE*
-    '</warning>' NEWLINE*;
-
-PlainText:
-    text+=(ID | INT | SYMBOL)+;
+// PlainText:
+//     text+=(ID | INT | SYMBOL)+;
 
 
-hidden terminal WS: /[^\S\r\n]+/;
-terminal NEWLINE: /[\n\r]+/;
+terminal EOL: /\r?\n/;
 terminal ID: /[_\-a-zA-Z][\w\-_]*/;
 terminal INT returns number: /[0-9]+/;
-terminal DOUBLE returns number: INT '.' INT;
 terminal STRING: /"[^"]*"|'[^']*'/;
 terminal SYMBOL: /[^\w\s]/;
 
+hidden terminal WS: /\s+/;
 hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
-hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
+hidden terminal SL_COMMENT: /\/\/[^\n\r]*[\n\r]/;

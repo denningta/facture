@@ -1,16 +1,34 @@
 {
   "name": "facture",
   "scopeName": "source.facture",
-  "fileTypes": [
-    ".fac"
-  ],
+  "fileTypes": [".fac"],
   "patterns": [
     {
       "include": "#comments"
     },
     {
       "name": "keyword.control.facture",
-      "match": "\\b(define|Inspection|Instruction|manufacturing|Procedure|Process|qualification|quality|ref|Section|Specification|Step|type|verification|witness)\\b|\\B(</warning>|<warning>)\\B"
+      "match": "\\b(Information|inherit|Inspection|link|Manufacturing|Name|Number|Part|Qualification|Revision|Type)\\b"
+    },
+    {
+      "name": "storage.type",
+      "match": "\\b(define|interface)\\b"
+    },
+    {
+      "name": "entity.name.tag.facture",
+      "match": "((?<=</)warning(?=>)|(?<=<)warning(?=>))"
+    },
+    {
+      "name": "support.class.facture",
+      "match": "(?<=define )(Work Instruction|[_\\-a-zA-Z][\\w\\-_]*)"
+    },
+    {
+      "name": "support.class.facture",
+      "match": "(?<=interface )[_\\-a-zA-Z][\\w\\-_]*"
+    },
+    {
+      "name": "support.class.facture",
+      "match": "\\bStep\\b"
     },
     {
       "name": "string.quoted.double.facture",
@@ -42,14 +60,19 @@
           }
         },
         {
+          "name": "comment.block.facture",
           "begin": "//",
           "beginCaptures": {
-            "1": {
-              "name": "punctuation.whitespace.comment.leading.facture"
+            "0": {
+              "name": "punctuation.definition.comment.facture"
             }
           },
-          "end": "(?=$)",
-          "name": "comment.line.facture"
+          "end": "[\\n\\r]",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.facture"
+            }
+          }
         }
       ]
     }

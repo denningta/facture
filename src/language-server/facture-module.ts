@@ -4,6 +4,8 @@ import {
 } from 'langium';
 import { FactureGeneratedModule, FactureGeneratedSharedModule } from './generated/module';
 import { FactureValidator, registerValidationChecks } from './facture-validator';
+import FactureSematicTokenProvider from './facture-token-provider';
+import { FactureCompletionProvider } from './facture-completion-provider';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -30,6 +32,10 @@ export const FactureModule: Module<FactureServices, PartialLangiumServices & Fac
     validation: {
         FactureValidator: () => new FactureValidator()
     },
+    lsp: {
+        SemanticTokenProvider: (services) => new FactureSematicTokenProvider(services),
+        CompletionProvider: (services) => new FactureCompletionProvider(services)
+    }
 };
 
 /**

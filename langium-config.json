@@ -1,12 +1,14 @@
 {
-    "projectName": "Facture",
-    "languages": [{
-        "id": "facture",
-        "grammar": "src/language-server/facture.langium",
-        "fileExtensions": [".fac"],
-        "textMate": {
-            "out": "syntaxes/facture.tmLanguage.json"
-        }
-    }],
-    "out": "src/language-server/generated"
+  "projectName": "Facture",
+  "languages": [
+    {
+      "id": "facture",
+      "grammar": "src/language-server/facture.langium",
+      "fileExtensions": [".fac"],
+      "chevrotainParserConfig": {
+        "maxLookahead": 3
+      }
+    }
+  ],
+  "out": "src/language-server/generated"
 }
