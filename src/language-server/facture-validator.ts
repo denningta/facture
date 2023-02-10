@@ -1,5 +1,5 @@
-import { ValidationChecks } from 'langium';
-import { FactureAstType, GenericObject, Property } from './generated/ast';
+import { AstNode, DiagnosticInfo, ValidationChecks } from 'langium';
+import { AbstractElement, AtomType, FactureAstType, GenericObject, Property, PropertyArray } from './generated/ast';
 import { ValidationAcceptor } from 'langium';
 import type { FactureServices } from './facture-module';
 
@@ -16,7 +16,10 @@ export function registerValidationChecks(services: FactureServices) {
             validator.checkObjectHasOnlyInterfaceProperties,
         ],
         Property: [
-            validator.checkPropertyHasCorrectType
+            validator.checkPropertyHasCorrectSingletonType,
+        ],
+        PropertyArray: [
+            validator.checkPropertyHasCorrectArrayType
         ]
     };
     registry.register(checks, validator);
@@ -27,6 +30,7 @@ export function registerValidationChecks(services: FactureServices) {
  */
 export class FactureValidator {
     checkObjectHasInterfaceProperties(object: GenericObject, accept: ValidationAcceptor): void {
+        if (!object.interface) return
         const attributes = object.interface.ref?.attributes.map(attribute => ({name: attribute.name, isOptional: attribute.isOptional}))
         let missingAttributes: string[] = []
         attributes && attributes.forEach(attribute => {
@@ -39,17 +43,18 @@ export class FactureValidator {
             accept(
                 'error', 
                 errormsg, 
-                { node: object, property: 'properties' }
+                { node: object, property: 'interface' }
             )
         }
 
     }
 
     checkObjectHasOnlyInterfaceProperties(object: GenericObject, accept: ValidationAcceptor): void {
+        if (!object.interface) return
         const attributes = object.interface.ref?.attributes.map(attribute => attribute.name)
         let extraProperties: string[] = [];
         object.properties.forEach(property => {
-            if (!attributes?.includes(property.name))
+            if (property.name && !attributes?.includes(property.name))
                 extraProperties.push(property.name)
         })
 
@@ -58,16 +63,102 @@ export class FactureValidator {
             accept(
                 'error',
                 errormsg,
-                { node: object, property: 'properties' }
+                { node: object, property: 'interface' }
             )
         }
     }
 
-    checkPropertyHasCorrectType(property: Property, accept: ValidationAcceptor): void {
-        const attribute = property.$container.interface.ref?.attributes.find(attribute => attribute.name === property.name)
-        console.log(property.name, attribute?.name)
-        console.log(property.value.$type)
-        console.log(attribute?.typeAlternatives[0].primitiveType)
+    checkPropertyHasCorrectSingletonType(property: Property | PropertyArray, accept: ValidationAcceptor): void {
+        if (Array.isArray(property.value)) return
+        const value = property.value
+        const allowedInterfaceTypes = this.getAllowedInterfaceTypes(property)
+
+        const acceptor = (propertyType: string, allowedType: string) => 
+            accept(
+                'error', 
+                `Type ${propertyType} is not assignable to type '${allowedType}'`, 
+                { node: property, property: 'value' }
+            )
+
+        allowedInterfaceTypes?.forEach(allowedType => {
+            if (!value) return
+            const propertyTypeTitle = this.getPropertyTypeTitle(value)
+            const allowedTypeTitle = this.getTypeTitle(allowedType) ?? 'undefined'
+
+            if (propertyTypeTitle !== allowedTypeTitle || allowedType.isArray) 
+                acceptor(this.getPropertyTypeTitle(value), allowedTypeTitle)
+        })
+    }
+
+    checkPropertyHasCorrectArrayType(property: Property | PropertyArray, accept: ValidationAcceptor): void {
+        if (!Array.isArray(property.value)) return
+        const allowedInterfaceTypes = this.getAllowedInterfaceTypes(property)
+        const values = property.value
+        const arrayTypes = this.filterUnique(values.map(element => this.getPropertyTypeTitle(element)))
+
+
+        allowedInterfaceTypes?.forEach(allowedType => {
+            const interfaceType = this.getType(allowedType) ?? 'undefined'
+            const acceptor = (propertyType: string, allowedType: string, info: DiagnosticInfo<AstNode, string>) => 
+                accept(
+                    'error',
+                    `Type ${propertyType} is not assignable to type ${allowedType}`,
+                    info
+                )
+
+            if (!allowedType.isArray && arrayTypes.length <= 1) {
+                acceptor(arrayTypes[0] + '[]', interfaceType.title, { node: property, property: 'value' })
+            }
+
+            if (arrayTypes.length > 1) {
+                values.forEach((value, index) => {
+                    const propertyTypeTitle = this.getPropertyTypeTitle(value)
+                    if (propertyTypeTitle !== interfaceType.base) 
+                        acceptor(this.getPropertyTypeTitle(value), interfaceType.title, { node: value, property: 'value' })
+                })
+            }
+
+        })
+
+
+
+    }
+
+    private getPropertyTypeTitle(element: AbstractElement): string {
+        if (element.$type === 'StringType') return 'string'
+        if (element.$type === 'IntegerType') return 'number'
+        if (element.$type === 'GenericObject') return element.interface.$refText
+        if (element.$type === 'ObjectRef') return element.data.ref?.interface.$refText ?? 'undefined'
+        return 'undefined'
+    }
+
+    private filterUnique(array: string[]) {
+        return array.filter((element, index, array) => array.indexOf(element) === index)
+    }
+
+    private getAllowedInterfaceTypes(property: Property | PropertyArray) {
+        return property.$container.interface.ref?.attributes.find(attribute => 
+            attribute.name === property.name
+        )?.typeAlternatives
+    }
+
+    private getTypeTitle(atomType: AtomType) {
+        return (atomType.primitiveType && (atomType.primitiveType + (atomType.isArray ? '[]' : '')))
+        ?? (atomType.refType && atomType.refType?.$refText + (atomType.isArray ? '[]' : ''))
+    }
+
+    private getType(atomType: AtomType) {
+        let base: string = 'undefined'
+        let modifier: string | undefined = undefined
+        if (atomType.isArray) modifier = '[]'
+        if (atomType.primitiveType) base = atomType.primitiveType
+        if (atomType.refType) base = atomType.refType.$refText
+
+        return {
+            title: base + (modifier && modifier),
+            base: base,
+            modifier: modifier
+        }
     }
 
 

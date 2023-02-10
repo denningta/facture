@@ -6,18 +6,33 @@
 /* eslint-disable */
 import { AstNode, AbstractAstReflection, Reference, ReferenceInfo, TypeMetaData } from 'langium';
 
+export type AbstractElement = GenericObject | IntegerType | ObjectRef | StringType;
+
+export const AbstractElement = 'AbstractElement';
+
+export function isAbstractElement(item: unknown): item is AbstractElement {
+    return reflection.isInstance(item, AbstractElement);
+}
+
+export type AbstractType = GenericObject | Interface;
+
+export const AbstractType = 'AbstractType';
+
+export function isAbstractType(item: unknown): item is AbstractType {
+    return reflection.isInstance(item, AbstractType);
+}
+
 export type FeatureName = string;
 
-export type PrimitiveType = 'Date' | 'bigint' | 'boolean' | 'number' | 'string';
+export type PrimitiveType = 'boolean' | 'number' | 'string';
 
 export interface AtomType extends AstNode {
     readonly $container: TypeAttribute;
     readonly $type: 'AtomType';
     isArray: boolean
-    isDefinition: boolean
     keywordType?: Keyword
     primitiveType?: PrimitiveType
-    refType?: Reference<Interface>
+    refType?: Reference<AbstractType>
 }
 
 export const AtomType = 'AtomType';
@@ -27,11 +42,11 @@ export function isAtomType(item: unknown): item is AtomType {
 }
 
 export interface GenericObject extends AstNode {
-    readonly $container: Model | ObjectDef;
+    readonly $container: Model | Property | PropertyArray;
     readonly $type: 'GenericObject';
     interface: Reference<Interface>
     name: string
-    properties: Array<Property>
+    properties: Array<Property | PropertyArray>
 }
 
 export const GenericObject = 'GenericObject';
@@ -40,8 +55,20 @@ export function isGenericObject(item: unknown): item is GenericObject {
     return reflection.isInstance(item, GenericObject);
 }
 
+export interface IntegerType extends AstNode {
+    readonly $container: Model | Property | PropertyArray;
+    readonly $type: 'IntegerType';
+    data: number
+}
+
+export const IntegerType = 'IntegerType';
+
+export function isIntegerType(item: unknown): item is IntegerType {
+    return reflection.isInstance(item, IntegerType);
+}
+
 export interface Interface extends AstNode {
-    readonly $container: Model;
+    readonly $container: Model | Property | PropertyArray;
     readonly $type: 'Interface';
     attributes: Array<TypeAttribute>
     name: string
@@ -77,35 +104,10 @@ export function isModel(item: unknown): item is Model {
     return reflection.isInstance(item, Model);
 }
 
-export interface ObjectArrayRef extends AstNode {
-    readonly $container: Property;
-    readonly $type: 'ObjectArrayRef';
-    objects: Array<Reference<GenericObject>>
-}
-
-export const ObjectArrayRef = 'ObjectArrayRef';
-
-export function isObjectArrayRef(item: unknown): item is ObjectArrayRef {
-    return reflection.isInstance(item, ObjectArrayRef);
-}
-
-export interface ObjectDef extends AstNode {
-    readonly $container: Property;
-    readonly $type: 'ObjectDef';
-    objects: Array<GenericObject>
-    type: 'ObjectDef'
-}
-
-export const ObjectDef = 'ObjectDef';
-
-export function isObjectDef(item: unknown): item is ObjectDef {
-    return reflection.isInstance(item, ObjectDef);
-}
-
 export interface ObjectRef extends AstNode {
-    readonly $container: Property;
+    readonly $container: Model | Property | PropertyArray;
     readonly $type: 'ObjectRef';
-    object: Reference<GenericObject>
+    data: Reference<GenericObject>
 }
 
 export const ObjectRef = 'ObjectRef';
@@ -118,7 +120,7 @@ export interface Property extends AstNode {
     readonly $container: GenericObject;
     readonly $type: 'Property';
     name: FeatureName
-    value: ObjectArrayRef | ObjectDef | ObjectRef | StringValue
+    value: AbstractElement
 }
 
 export const Property = 'Property';
@@ -127,16 +129,29 @@ export function isProperty(item: unknown): item is Property {
     return reflection.isInstance(item, Property);
 }
 
-export interface StringValue extends AstNode {
-    readonly $container: Property;
-    readonly $type: 'StringValue';
-    string: string
+export interface PropertyArray extends AstNode {
+    readonly $container: GenericObject;
+    readonly $type: 'PropertyArray';
+    name: FeatureName
+    value: Array<AbstractElement>
 }
 
-export const StringValue = 'StringValue';
+export const PropertyArray = 'PropertyArray';
 
-export function isStringValue(item: unknown): item is StringValue {
-    return reflection.isInstance(item, StringValue);
+export function isPropertyArray(item: unknown): item is PropertyArray {
+    return reflection.isInstance(item, PropertyArray);
+}
+
+export interface StringType extends AstNode {
+    readonly $container: Model | Property | PropertyArray;
+    readonly $type: 'StringType';
+    data: string
+}
+
+export const StringType = 'StringType';
+
+export function isStringType(item: unknown): item is StringType {
+    return reflection.isInstance(item, StringType);
 }
 
 export interface TypeAttribute extends AstNode {
@@ -154,27 +169,40 @@ export function isTypeAttribute(item: unknown): item is TypeAttribute {
 }
 
 export interface FactureAstType {
+    AbstractElement: AbstractElement
+    AbstractType: AbstractType
     AtomType: AtomType
     GenericObject: GenericObject
+    IntegerType: IntegerType
     Interface: Interface
     Keyword: Keyword
     Model: Model
-    ObjectArrayRef: ObjectArrayRef
-    ObjectDef: ObjectDef
     ObjectRef: ObjectRef
     Property: Property
-    StringValue: StringValue
+    PropertyArray: PropertyArray
+    StringType: StringType
     TypeAttribute: TypeAttribute
 }
 
 export class FactureAstReflection extends AbstractAstReflection {
 
     getAllTypes(): string[] {
-        return ['AtomType', 'GenericObject', 'Interface', 'Keyword', 'Model', 'ObjectArrayRef', 'ObjectDef', 'ObjectRef', 'Property', 'StringValue', 'TypeAttribute'];
+        return ['AbstractElement', 'AbstractType', 'AtomType', 'GenericObject', 'IntegerType', 'Interface', 'Keyword', 'Model', 'ObjectRef', 'Property', 'PropertyArray', 'StringType', 'TypeAttribute'];
     }
 
     protected override computeIsSubtype(subtype: string, supertype: string): boolean {
         switch (subtype) {
+            case GenericObject: {
+                return this.isSubtype(AbstractElement, supertype) || this.isSubtype(AbstractType, supertype);
+            }
+            case IntegerType:
+            case ObjectRef:
+            case StringType: {
+                return this.isSubtype(AbstractElement, supertype);
+            }
+            case Interface: {
+                return this.isSubtype(AbstractType, supertype);
+            }
             default: {
                 return false;
             }
@@ -184,12 +212,13 @@ export class FactureAstReflection extends AbstractAstReflection {
     getReferenceType(refInfo: ReferenceInfo): string {
         const referenceId = `${refInfo.container.$type}:${refInfo.property}`;
         switch (referenceId) {
-            case 'AtomType:refType':
+            case 'AtomType:refType': {
+                return AbstractType;
+            }
             case 'GenericObject:interface': {
                 return Interface;
             }
-            case 'ObjectArrayRef:objects':
-            case 'ObjectRef:object': {
+            case 'ObjectRef:data': {
                 return GenericObject;
             }
             default: {
@@ -204,8 +233,7 @@ export class FactureAstReflection extends AbstractAstReflection {
                 return {
                     name: 'AtomType',
                     mandatory: [
-                        { name: 'isArray', type: 'boolean' },
-                        { name: 'isDefinition', type: 'boolean' }
+                        { name: 'isArray', type: 'boolean' }
                     ]
                 };
             }
@@ -234,19 +262,11 @@ export class FactureAstReflection extends AbstractAstReflection {
                     ]
                 };
             }
-            case 'ObjectArrayRef': {
+            case 'PropertyArray': {
                 return {
-                    name: 'ObjectArrayRef',
+                    name: 'PropertyArray',
                     mandatory: [
-                        { name: 'objects', type: 'array' }
-                    ]
-                };
-            }
-            case 'ObjectDef': {
-                return {
-                    name: 'ObjectDef',
-                    mandatory: [
-                        { name: 'objects', type: 'array' }
+                        { name: 'value', type: 'array' }
                     ]
                 };
             }

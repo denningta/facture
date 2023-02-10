@@ -19,11 +19,12 @@ fragment TypeAlternatives:
     typeAlternatives+=AtomType ('|' typeAlternatives+=AtomType)*;
 
 AtomType:
-    (primitiveType=PrimitiveType | refType=[Interface] | keywordType=Keyword) isArray?='[]'? isDefinition?='{}'?;
+    (primitiveType=PrimitiveType | refType=[AbstractType:ID] | keywordType=Keyword) isArray?='[]'?;
 
-PrimitiveType <> returns string:
-    'string' | 'number' | 'boolean' | 'Date' | 'bigint';
+ type AbstractType = Interface | GenericObject;
 
+PrimitiveType returns string:
+    'string' | 'number' | 'boolean';
 
 FeatureName returns string:
     'interface' | 'define' | PrimitiveType | ID;
@@ -33,27 +34,26 @@ Keyword:
 
 GenericObject:
     'define' interface=[Interface] name=(ID) '{' EOL*
-        properties+=Property* EOL*
+        properties+=(Property | PropertyArray)* EOL*
     '}' EOL*;
 
 Property:
-    name=(FeatureName) ':' value=(StringValue | ObjectRef | ObjectArrayRef | ObjectDef);
+    (name=(FeatureName) ':' value=AbstractElement);
 
-StringValue:
-    string=STRING;
+PropertyArray:
+    name=(FeatureName) ':' '[' value+=AbstractElement* ']';
+
+AbstractElement:
+    StringType | IntegerType | ObjectRef | GenericObject;
+
+StringType:
+    data=STRING;
+
+IntegerType:
+    data=INT;
 
 ObjectRef:
-    object=[GenericObject] EOL*;
-
-ObjectArrayRef:
-    '[' EOL*
-        objects+=[GenericObject]* EOL* 
-    ']' EOL*;
-
-ObjectDef:
-    '{' EOL*
-        objects+=GenericObject* type='ObjectDef' EOL*
-    '}' EOL*;
+    data=[GenericObject];
 
 // Markdown:
 //     (ListItem | Bold | Italic | BlockQuote | Header1 | Paragraph | Warning);
@@ -91,6 +91,7 @@ ObjectDef:
 
 terminal EOL: /\r?\n/;
 terminal ID: /[_\-a-zA-Z][\w\-_]*/;
+terminal DOUBLE returns number: INT '.' INT;
 terminal INT returns number: /[0-9]+/;
 terminal STRING: /"[^"]*"|'[^']*'/;
 terminal SYMBOL: /[^\w\s]/;
