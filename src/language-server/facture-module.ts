@@ -6,6 +6,7 @@ import { FactureGeneratedModule, FactureGeneratedSharedModule } from './generate
 import { FactureValidator, registerValidationChecks } from './facture-validator';
 import FactureSematicTokenProvider from './facture-token-provider';
 import { FactureCompletionProvider } from './facture-completion-provider';
+import { FactureWorkspaceManager } from './facture-workspace-manager';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -15,6 +16,9 @@ export type FactureAddedServices = {
     validation: {
         FactureValidator: FactureValidator
     },
+    workspace: {
+        WorkspaceManager: FactureWorkspaceManager
+    }
 }
 
 /**
@@ -35,7 +39,15 @@ export const FactureModule: Module<FactureServices, PartialLangiumServices & Fac
     lsp: {
         SemanticTokenProvider: (services) => new FactureSematicTokenProvider(services),
         CompletionProvider: (services) => new FactureCompletionProvider(services)
+    },
+    workspace: {
+        WorkspaceManager: (services) => new FactureWorkspaceManager(services.shared)
     }
+    // shared: {
+    //     workspace: {
+    //         WorkspaceManager: (services) => new FactureWorkspaceManager(services.shared)
+    //     }
+    // }
 };
 
 /**
@@ -59,7 +71,7 @@ export function createFactureServices(context: DefaultSharedModuleContext): {
 } {
     const shared = inject(
         createDefaultSharedModule(context),
-        FactureGeneratedSharedModule
+        FactureGeneratedSharedModule,
     );
     const Facture = inject(
         createDefaultModule({ shared }),

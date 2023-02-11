@@ -24,6 +24,14 @@ export function isAbstractType(item: unknown): item is AbstractType {
 
 export type FeatureName = string;
 
+export type Markdown = BlockQuote | Header1 | ListItem | Paragraph | Warning;
+
+export const Markdown = 'Markdown';
+
+export function isMarkdown(item: unknown): item is Markdown {
+    return reflection.isInstance(item, Markdown);
+}
+
 export type PrimitiveType = 'boolean' | 'number' | 'string';
 
 export interface AtomType extends AstNode {
@@ -41,10 +49,35 @@ export function isAtomType(item: unknown): item is AtomType {
     return reflection.isInstance(item, AtomType);
 }
 
+export interface BlockQuote extends AstNode {
+    readonly $container: GenericObject | Warning;
+    readonly $type: 'BlockQuote';
+    content: Array<Bold | Italic | PlainText>
+}
+
+export const BlockQuote = 'BlockQuote';
+
+export function isBlockQuote(item: unknown): item is BlockQuote {
+    return reflection.isInstance(item, BlockQuote);
+}
+
+export interface Bold extends AstNode {
+    readonly $container: BlockQuote | Paragraph;
+    readonly $type: 'Bold';
+    text: Array<PlainText>
+}
+
+export const Bold = 'Bold';
+
+export function isBold(item: unknown): item is Bold {
+    return reflection.isInstance(item, Bold);
+}
+
 export interface GenericObject extends AstNode {
     readonly $container: Model | Property | PropertyArray;
     readonly $type: 'GenericObject';
     interface: Reference<Interface>
+    markdown: Array<Markdown>
     name: string
     properties: Array<Property | PropertyArray>
 }
@@ -53,6 +86,18 @@ export const GenericObject = 'GenericObject';
 
 export function isGenericObject(item: unknown): item is GenericObject {
     return reflection.isInstance(item, GenericObject);
+}
+
+export interface Header1 extends AstNode {
+    readonly $container: GenericObject | Warning;
+    readonly $type: 'Header1';
+    text: Array<PlainText>
+}
+
+export const Header1 = 'Header1';
+
+export function isHeader1(item: unknown): item is Header1 {
+    return reflection.isInstance(item, Header1);
 }
 
 export interface IntegerType extends AstNode {
@@ -80,6 +125,18 @@ export function isInterface(item: unknown): item is Interface {
     return reflection.isInstance(item, Interface);
 }
 
+export interface Italic extends AstNode {
+    readonly $container: BlockQuote | Paragraph;
+    readonly $type: 'Italic';
+    text: PlainText
+}
+
+export const Italic = 'Italic';
+
+export function isItalic(item: unknown): item is Italic {
+    return reflection.isInstance(item, Italic);
+}
+
 export interface Keyword extends AstNode {
     readonly $container: AtomType;
     readonly $type: 'Keyword';
@@ -90,6 +147,19 @@ export const Keyword = 'Keyword';
 
 export function isKeyword(item: unknown): item is Keyword {
     return reflection.isInstance(item, Keyword);
+}
+
+export interface ListItem extends AstNode {
+    readonly $container: GenericObject | Warning;
+    readonly $type: 'ListItem';
+    index?: number
+    text: PlainText
+}
+
+export const ListItem = 'ListItem';
+
+export function isListItem(item: unknown): item is ListItem {
+    return reflection.isInstance(item, ListItem);
 }
 
 export interface Model extends AstNode {
@@ -114,6 +184,30 @@ export const ObjectRef = 'ObjectRef';
 
 export function isObjectRef(item: unknown): item is ObjectRef {
     return reflection.isInstance(item, ObjectRef);
+}
+
+export interface Paragraph extends AstNode {
+    readonly $container: GenericObject | Warning;
+    readonly $type: 'Paragraph';
+    content: Array<Bold | Italic | PlainText>
+}
+
+export const Paragraph = 'Paragraph';
+
+export function isParagraph(item: unknown): item is Paragraph {
+    return reflection.isInstance(item, Paragraph);
+}
+
+export interface PlainText extends AstNode {
+    readonly $container: BlockQuote | Bold | Header1 | Italic | ListItem | Paragraph;
+    readonly $type: 'PlainText';
+    text: Array<FeatureName>
+}
+
+export const PlainText = 'PlainText';
+
+export function isPlainText(item: unknown): item is PlainText {
+    return reflection.isInstance(item, PlainText);
 }
 
 export interface Property extends AstNode {
@@ -168,30 +262,58 @@ export function isTypeAttribute(item: unknown): item is TypeAttribute {
     return reflection.isInstance(item, TypeAttribute);
 }
 
+export interface Warning extends AstNode {
+    readonly $container: GenericObject | Warning;
+    readonly $type: 'Warning';
+    content: Array<Markdown>
+}
+
+export const Warning = 'Warning';
+
+export function isWarning(item: unknown): item is Warning {
+    return reflection.isInstance(item, Warning);
+}
+
 export interface FactureAstType {
     AbstractElement: AbstractElement
     AbstractType: AbstractType
     AtomType: AtomType
+    BlockQuote: BlockQuote
+    Bold: Bold
     GenericObject: GenericObject
+    Header1: Header1
     IntegerType: IntegerType
     Interface: Interface
+    Italic: Italic
     Keyword: Keyword
+    ListItem: ListItem
+    Markdown: Markdown
     Model: Model
     ObjectRef: ObjectRef
+    Paragraph: Paragraph
+    PlainText: PlainText
     Property: Property
     PropertyArray: PropertyArray
     StringType: StringType
     TypeAttribute: TypeAttribute
+    Warning: Warning
 }
 
 export class FactureAstReflection extends AbstractAstReflection {
 
     getAllTypes(): string[] {
-        return ['AbstractElement', 'AbstractType', 'AtomType', 'GenericObject', 'IntegerType', 'Interface', 'Keyword', 'Model', 'ObjectRef', 'Property', 'PropertyArray', 'StringType', 'TypeAttribute'];
+        return ['AbstractElement', 'AbstractType', 'AtomType', 'BlockQuote', 'Bold', 'GenericObject', 'Header1', 'IntegerType', 'Interface', 'Italic', 'Keyword', 'ListItem', 'Markdown', 'Model', 'ObjectRef', 'Paragraph', 'PlainText', 'Property', 'PropertyArray', 'StringType', 'TypeAttribute', 'Warning'];
     }
 
     protected override computeIsSubtype(subtype: string, supertype: string): boolean {
         switch (subtype) {
+            case BlockQuote:
+            case Header1:
+            case ListItem:
+            case Paragraph:
+            case Warning: {
+                return this.isSubtype(Markdown, supertype);
+            }
             case GenericObject: {
                 return this.isSubtype(AbstractElement, supertype) || this.isSubtype(AbstractType, supertype);
             }
@@ -237,11 +359,36 @@ export class FactureAstReflection extends AbstractAstReflection {
                     ]
                 };
             }
+            case 'BlockQuote': {
+                return {
+                    name: 'BlockQuote',
+                    mandatory: [
+                        { name: 'content', type: 'array' }
+                    ]
+                };
+            }
+            case 'Bold': {
+                return {
+                    name: 'Bold',
+                    mandatory: [
+                        { name: 'text', type: 'array' }
+                    ]
+                };
+            }
             case 'GenericObject': {
                 return {
                     name: 'GenericObject',
                     mandatory: [
+                        { name: 'markdown', type: 'array' },
                         { name: 'properties', type: 'array' }
+                    ]
+                };
+            }
+            case 'Header1': {
+                return {
+                    name: 'Header1',
+                    mandatory: [
+                        { name: 'text', type: 'array' }
                     ]
                 };
             }
@@ -262,6 +409,22 @@ export class FactureAstReflection extends AbstractAstReflection {
                     ]
                 };
             }
+            case 'Paragraph': {
+                return {
+                    name: 'Paragraph',
+                    mandatory: [
+                        { name: 'content', type: 'array' }
+                    ]
+                };
+            }
+            case 'PlainText': {
+                return {
+                    name: 'PlainText',
+                    mandatory: [
+                        { name: 'text', type: 'array' }
+                    ]
+                };
+            }
             case 'PropertyArray': {
                 return {
                     name: 'PropertyArray',
@@ -276,6 +439,14 @@ export class FactureAstReflection extends AbstractAstReflection {
                     mandatory: [
                         { name: 'isOptional', type: 'boolean' },
                         { name: 'typeAlternatives', type: 'array' }
+                    ]
+                };
+            }
+            case 'Warning': {
+                return {
+                    name: 'Warning',
+                    mandatory: [
+                        { name: 'content', type: 'array' }
                     ]
                 };
             }

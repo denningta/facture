@@ -10,13 +10,15 @@ Interface:
     SchemaType;
 
 fragment SchemaType:
-    '{' attributes+=TypeAttribute* '}' ';'?;
+    '{' EOL*
+        attributes+=(TypeAttribute)* EOL*
+    '}' EOL*;
 
 TypeAttribute:
     name=FeatureName (isOptional?='?')? ':' TypeAlternatives ';'?;
 
 fragment TypeAlternatives:
-    typeAlternatives+=AtomType ('|' typeAlternatives+=AtomType)*;
+    typeAlternatives+=AtomType ('|' typeAlternatives+=AtomType)* EOL*;
 
 AtomType:
     (primitiveType=PrimitiveType | refType=[AbstractType:ID] | keywordType=Keyword) isArray?='[]'?;
@@ -35,13 +37,16 @@ Keyword:
 GenericObject:
     'define' interface=[Interface] name=(ID) '{' EOL*
         properties+=(Property | PropertyArray)* EOL*
+        markdown+=Markdown* EOL*
     '}' EOL*;
 
 Property:
-    (name=(FeatureName) ':' value=AbstractElement);
+    (name=(FeatureName) ':' value=AbstractElement) EOL*;
 
 PropertyArray:
-    name=(FeatureName) ':' '[' value+=AbstractElement* ']';
+    name=(FeatureName) ':' EOL* '[' EOL* 
+        (value+=AbstractElement | EOL)*
+    ']';
 
 AbstractElement:
     StringType | IntegerType | ObjectRef | GenericObject;
@@ -55,47 +60,44 @@ IntegerType:
 ObjectRef:
     data=[GenericObject];
 
-// Markdown:
-//     (ListItem | Bold | Italic | BlockQuote | Header1 | Paragraph | Warning);
+Markdown:
+    (ListItem | BlockQuote | Header1 | Paragraph | Warning);
 
-// Header:
-//     text=PlainText;
+PlainText:
+    text+=(FeatureName)+ EOL+;
 
+Bold:
+    '**' text+=PlainText+ '**';
 
-// Header1:
-//     '#' content=Header;
+Italic:
+    '*' text=PlainText '*';
 
-// Bold:
-//     '**' text=PlainText '**';
+Header1:
+    '#' (text+=(PlainText)+);
 
-// Italic:
-//     '*' text=PlainText '*';
+Paragraph:
+    (content+=(PlainText | Bold | Italic))+ EOL*;
 
-// BlockQuote:
-//     '>' text=PlainText EOL*;
+BlockQuote:
+    '<quote>' EOL*
+        content+=(PlainText | Bold | Italic)+ EOL*
+    '</quote>' EOL*;
 
-// ListItem:
-//     '-' index=INT? text=PlainText EOL*;
+ListItem:
+    '-' index=INT? text=PlainText;
 
-// Paragraph:
-//     text=PlainText EOL*;
-
-// Warning:
-//     '<warning>' EOL* 
-//         content+=Markdown* EOL*
-//     '</warning>' EOL*;
-
-// PlainText:
-//     text+=(ID | INT | SYMBOL)+;
+Warning:
+    '<warning>' EOL* 
+        content+=Markdown* EOL*
+    '</warning>' EOL*;
 
 
-terminal EOL: /\r?\n/;
+
+terminal EOL: /[\r\n]/;
 terminal ID: /[_\-a-zA-Z][\w\-_]*/;
-terminal DOUBLE returns number: INT '.' INT;
 terminal INT returns number: /[0-9]+/;
 terminal STRING: /"[^"]*"|'[^']*'/;
-terminal SYMBOL: /[^\w\s]/;
 
-hidden terminal WS: /\s+/;
+hidden terminal WS: /[^\S\r\n]/;
 hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 hidden terminal SL_COMMENT: /\/\/[^\n\r]*[\n\r]/;
