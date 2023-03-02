@@ -27,6 +27,10 @@
       "match": "(?<=interface )[_\\-a-zA-Z][\\w\\-_]*"
     },
     {
+      "name": "entity.name.function.facture",
+      "match": "\\b(render)\\b"
+    },
+    {
       "name": "support.class.facture",
       "match": "\\bStep\\b"
     },

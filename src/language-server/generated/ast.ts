@@ -24,7 +24,7 @@ export function isAbstractType(item: unknown): item is AbstractType {
 
 export type FeatureName = string;
 
-export type Markdown = BlockQuote | Header1 | ListItem | Paragraph | Warning;
+export type Markdown = Block;
 
 export const Markdown = 'Markdown';
 
@@ -34,10 +34,13 @@ export function isMarkdown(item: unknown): item is Markdown {
 
 export type PrimitiveType = 'boolean' | 'number' | 'string';
 
+export type Text = string;
+
 export interface AtomType extends AstNode {
     readonly $container: TypeAttribute;
     readonly $type: 'AtomType';
     isArray: boolean
+    isFunction: boolean
     keywordType?: Keyword
     primitiveType?: PrimitiveType
     refType?: Reference<AbstractType>
@@ -49,10 +52,22 @@ export function isAtomType(item: unknown): item is AtomType {
     return reflection.isInstance(item, AtomType);
 }
 
+export interface Block extends AstNode {
+    readonly $container: BlockQuote | RenderFunction | Warning;
+    readonly $type: 'Block';
+    content: Array<BlockQuote | Bold | Header1 | Italic | ListItem | ObjReference | PlainText | Warning>
+}
+
+export const Block = 'Block';
+
+export function isBlock(item: unknown): item is Block {
+    return reflection.isInstance(item, Block);
+}
+
 export interface BlockQuote extends AstNode {
-    readonly $container: GenericObject | Warning;
+    readonly $container: Block;
     readonly $type: 'BlockQuote';
-    content: Array<Bold | Italic | PlainText>
+    content: Array<Block>
 }
 
 export const BlockQuote = 'BlockQuote';
@@ -62,9 +77,9 @@ export function isBlockQuote(item: unknown): item is BlockQuote {
 }
 
 export interface Bold extends AstNode {
-    readonly $container: BlockQuote | Paragraph;
+    readonly $container: Block;
     readonly $type: 'Bold';
-    text: Array<PlainText>
+    text: Array<Text>
 }
 
 export const Bold = 'Bold';
@@ -77,9 +92,9 @@ export interface GenericObject extends AstNode {
     readonly $container: Model | Property | PropertyArray;
     readonly $type: 'GenericObject';
     interface: Reference<Interface>
-    markdown: Array<Markdown>
     name: string
     properties: Array<Property | PropertyArray>
+    render?: RenderFunction
 }
 
 export const GenericObject = 'GenericObject';
@@ -89,9 +104,9 @@ export function isGenericObject(item: unknown): item is GenericObject {
 }
 
 export interface Header1 extends AstNode {
-    readonly $container: GenericObject | Warning;
+    readonly $container: Block;
     readonly $type: 'Header1';
-    text: Array<PlainText>
+    text: Array<Text>
 }
 
 export const Header1 = 'Header1';
@@ -126,9 +141,9 @@ export function isInterface(item: unknown): item is Interface {
 }
 
 export interface Italic extends AstNode {
-    readonly $container: BlockQuote | Paragraph;
+    readonly $container: Block;
     readonly $type: 'Italic';
-    text: PlainText
+    text: Array<Text>
 }
 
 export const Italic = 'Italic';
@@ -150,10 +165,9 @@ export function isKeyword(item: unknown): item is Keyword {
 }
 
 export interface ListItem extends AstNode {
-    readonly $container: GenericObject | Warning;
+    readonly $container: Block;
     readonly $type: 'ListItem';
-    index?: number
-    text: PlainText
+    text: Array<Text>
 }
 
 export const ListItem = 'ListItem';
@@ -186,22 +200,22 @@ export function isObjectRef(item: unknown): item is ObjectRef {
     return reflection.isInstance(item, ObjectRef);
 }
 
-export interface Paragraph extends AstNode {
-    readonly $container: GenericObject | Warning;
-    readonly $type: 'Paragraph';
-    content: Array<Bold | Italic | PlainText>
+export interface ObjReference extends AstNode {
+    readonly $container: Block;
+    readonly $type: 'ObjReference';
+    reference: Reference<GenericObject>
 }
 
-export const Paragraph = 'Paragraph';
+export const ObjReference = 'ObjReference';
 
-export function isParagraph(item: unknown): item is Paragraph {
-    return reflection.isInstance(item, Paragraph);
+export function isObjReference(item: unknown): item is ObjReference {
+    return reflection.isInstance(item, ObjReference);
 }
 
 export interface PlainText extends AstNode {
-    readonly $container: BlockQuote | Bold | Header1 | Italic | ListItem | Paragraph;
+    readonly $container: Block;
     readonly $type: 'PlainText';
-    text: Array<FeatureName>
+    text: Array<Text>
 }
 
 export const PlainText = 'PlainText';
@@ -236,6 +250,18 @@ export function isPropertyArray(item: unknown): item is PropertyArray {
     return reflection.isInstance(item, PropertyArray);
 }
 
+export interface RenderFunction extends AstNode {
+    readonly $container: GenericObject;
+    readonly $type: 'RenderFunction';
+    markdown: Array<Markdown>
+}
+
+export const RenderFunction = 'RenderFunction';
+
+export function isRenderFunction(item: unknown): item is RenderFunction {
+    return reflection.isInstance(item, RenderFunction);
+}
+
 export interface StringType extends AstNode {
     readonly $container: Model | Property | PropertyArray;
     readonly $type: 'StringType';
@@ -263,9 +289,9 @@ export function isTypeAttribute(item: unknown): item is TypeAttribute {
 }
 
 export interface Warning extends AstNode {
-    readonly $container: GenericObject | Warning;
+    readonly $container: Block;
     readonly $type: 'Warning';
-    content: Array<Markdown>
+    content: Array<Block>
 }
 
 export const Warning = 'Warning';
@@ -278,6 +304,7 @@ export interface FactureAstType {
     AbstractElement: AbstractElement
     AbstractType: AbstractType
     AtomType: AtomType
+    Block: Block
     BlockQuote: BlockQuote
     Bold: Bold
     GenericObject: GenericObject
@@ -289,11 +316,12 @@ export interface FactureAstType {
     ListItem: ListItem
     Markdown: Markdown
     Model: Model
+    ObjReference: ObjReference
     ObjectRef: ObjectRef
-    Paragraph: Paragraph
     PlainText: PlainText
     Property: Property
     PropertyArray: PropertyArray
+    RenderFunction: RenderFunction
     StringType: StringType
     TypeAttribute: TypeAttribute
     Warning: Warning
@@ -302,16 +330,12 @@ export interface FactureAstType {
 export class FactureAstReflection extends AbstractAstReflection {
 
     getAllTypes(): string[] {
-        return ['AbstractElement', 'AbstractType', 'AtomType', 'BlockQuote', 'Bold', 'GenericObject', 'Header1', 'IntegerType', 'Interface', 'Italic', 'Keyword', 'ListItem', 'Markdown', 'Model', 'ObjectRef', 'Paragraph', 'PlainText', 'Property', 'PropertyArray', 'StringType', 'TypeAttribute', 'Warning'];
+        return ['AbstractElement', 'AbstractType', 'AtomType', 'Block', 'BlockQuote', 'Bold', 'GenericObject', 'Header1', 'IntegerType', 'Interface', 'Italic', 'Keyword', 'ListItem', 'Markdown', 'Model', 'ObjReference', 'ObjectRef', 'PlainText', 'Property', 'PropertyArray', 'RenderFunction', 'StringType', 'TypeAttribute', 'Warning'];
     }
 
     protected override computeIsSubtype(subtype: string, supertype: string): boolean {
         switch (subtype) {
-            case BlockQuote:
-            case Header1:
-            case ListItem:
-            case Paragraph:
-            case Warning: {
+            case Block: {
                 return this.isSubtype(Markdown, supertype);
             }
             case GenericObject: {
@@ -340,7 +364,8 @@ export class FactureAstReflection extends AbstractAstReflection {
             case 'GenericObject:interface': {
                 return Interface;
             }
-            case 'ObjectRef:data': {
+            case 'ObjectRef:data':
+            case 'ObjReference:reference': {
                 return GenericObject;
             }
             default: {
@@ -355,7 +380,16 @@ export class FactureAstReflection extends AbstractAstReflection {
                 return {
                     name: 'AtomType',
                     mandatory: [
-                        { name: 'isArray', type: 'boolean' }
+                        { name: 'isArray', type: 'boolean' },
+                        { name: 'isFunction', type: 'boolean' }
+                    ]
+                };
+            }
+            case 'Block': {
+                return {
+                    name: 'Block',
+                    mandatory: [
+                        { name: 'content', type: 'array' }
                     ]
                 };
             }
@@ -379,7 +413,6 @@ export class FactureAstReflection extends AbstractAstReflection {
                 return {
                     name: 'GenericObject',
                     mandatory: [
-                        { name: 'markdown', type: 'array' },
                         { name: 'properties', type: 'array' }
                     ]
                 };
@@ -400,20 +433,28 @@ export class FactureAstReflection extends AbstractAstReflection {
                     ]
                 };
             }
+            case 'Italic': {
+                return {
+                    name: 'Italic',
+                    mandatory: [
+                        { name: 'text', type: 'array' }
+                    ]
+                };
+            }
+            case 'ListItem': {
+                return {
+                    name: 'ListItem',
+                    mandatory: [
+                        { name: 'text', type: 'array' }
+                    ]
+                };
+            }
             case 'Model': {
                 return {
                     name: 'Model',
                     mandatory: [
                         { name: 'interfaces', type: 'array' },
                         { name: 'objects', type: 'array' }
-                    ]
-                };
-            }
-            case 'Paragraph': {
-                return {
-                    name: 'Paragraph',
-                    mandatory: [
-                        { name: 'content', type: 'array' }
                     ]
                 };
             }
@@ -430,6 +471,14 @@ export class FactureAstReflection extends AbstractAstReflection {
                     name: 'PropertyArray',
                     mandatory: [
                         { name: 'value', type: 'array' }
+                    ]
+                };
+            }
+            case 'RenderFunction': {
+                return {
+                    name: 'RenderFunction',
+                    mandatory: [
+                        { name: 'markdown', type: 'array' }
                     ]
                 };
             }

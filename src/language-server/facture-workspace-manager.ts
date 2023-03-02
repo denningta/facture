@@ -3,7 +3,8 @@ import { WorkspaceFolder } from "vscode-languageserver";
 import { URI } from "vscode-uri";
 
 export const builtInLibrary = `
-
+    interface Markdown {}
+    interface Render {}
 `.trimLeft();
 
 export class FactureWorkspaceManager extends DefaultWorkspaceManager {

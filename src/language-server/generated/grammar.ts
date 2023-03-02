@@ -21,7 +21,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -59,7 +59,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -89,7 +89,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@26"
+                "$ref": "#/rules@29"
               },
               "arguments": []
             }
@@ -124,7 +124,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -145,7 +145,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -157,7 +157,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -267,7 +267,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -313,7 +313,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
                   "terminal": {
                     "$type": "RuleCall",
                     "rule": {
-                      "$ref": "#/rules@26"
+                      "$ref": "#/rules@29"
                     },
                     "arguments": []
                   },
@@ -341,6 +341,16 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "terminal": {
               "$type": "Keyword",
               "value": "[]"
+            },
+            "cardinality": "?"
+          },
+          {
+            "$type": "Assignment",
+            "feature": "isFunction",
+            "operator": "?=",
+            "terminal": {
+              "$type": "Keyword",
+              "value": "()"
             },
             "cardinality": "?"
           }
@@ -406,7 +416,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@26"
+              "$ref": "#/rules@29"
             },
             "arguments": []
           }
@@ -429,7 +439,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
         "terminal": {
           "$type": "RuleCall",
           "rule": {
-            "$ref": "#/rules@28"
+            "$ref": "#/rules@31"
           },
           "arguments": []
         }
@@ -470,7 +480,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@26"
+                "$ref": "#/rules@29"
               },
               "arguments": []
             }
@@ -482,7 +492,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -497,14 +507,14 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
                 {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@10"
+                    "$ref": "#/rules@11"
                   },
                   "arguments": []
                 },
                 {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@11"
+                    "$ref": "#/rules@12"
                   },
                   "arguments": []
                 }
@@ -515,28 +525,28 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
           },
           {
             "$type": "Assignment",
-            "feature": "markdown",
-            "operator": "+=",
+            "feature": "render",
+            "operator": "=",
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@16"
+                "$ref": "#/rules@10"
               },
               "arguments": []
             },
-            "cardinality": "*"
+            "cardinality": "?"
           },
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -548,7 +558,63 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
+            },
+            "arguments": [],
+            "cardinality": "*"
+          }
+        ]
+      },
+      "definesHiddenTokens": false,
+      "entry": false,
+      "fragment": false,
+      "hiddenTokens": [],
+      "parameters": [],
+      "wildcard": false
+    },
+    {
+      "$type": "ParserRule",
+      "name": "RenderFunction",
+      "definition": {
+        "$type": "Group",
+        "elements": [
+          {
+            "$type": "Keyword",
+            "value": "render()"
+          },
+          {
+            "$type": "Keyword",
+            "value": "{"
+          },
+          {
+            "$type": "RuleCall",
+            "rule": {
+              "$ref": "#/rules@28"
+            },
+            "arguments": [],
+            "cardinality": "*"
+          },
+          {
+            "$type": "Assignment",
+            "feature": "markdown",
+            "operator": "+=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@17"
+              },
+              "arguments": []
+            },
+            "cardinality": "*"
+          },
+          {
+            "$type": "Keyword",
+            "value": "}"
+          },
+          {
+            "$type": "RuleCall",
+            "rule": {
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -594,7 +660,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@12"
+                    "$ref": "#/rules@13"
                   },
                   "arguments": []
                 }
@@ -604,7 +670,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -643,7 +709,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -655,7 +721,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -670,7 +736,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@12"
+                    "$ref": "#/rules@13"
                   },
                   "arguments": []
                 }
@@ -678,7 +744,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
               {
                 "$type": "RuleCall",
                 "rule": {
-                  "$ref": "#/rules@25"
+                  "$ref": "#/rules@28"
                 },
                 "arguments": []
               }
@@ -707,13 +773,6 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@13"
-            },
-            "arguments": []
-          },
-          {
-            "$type": "RuleCall",
-            "rule": {
               "$ref": "#/rules@14"
             },
             "arguments": []
@@ -722,6 +781,13 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "$type": "RuleCall",
             "rule": {
               "$ref": "#/rules@15"
+            },
+            "arguments": []
+          },
+          {
+            "$type": "RuleCall",
+            "rule": {
+              "$ref": "#/rules@16"
             },
             "arguments": []
           },
@@ -751,7 +817,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
         "terminal": {
           "$type": "RuleCall",
           "rule": {
-            "$ref": "#/rules@28"
+            "$ref": "#/rules@31"
           },
           "arguments": []
         }
@@ -773,7 +839,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
         "terminal": {
           "$type": "RuleCall",
           "rule": {
-            "$ref": "#/rules@27"
+            "$ref": "#/rules@30"
           },
           "arguments": []
         }
@@ -811,42 +877,48 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
       "$type": "ParserRule",
       "name": "Markdown",
       "definition": {
-        "$type": "Alternatives",
+        "$type": "RuleCall",
+        "rule": {
+          "$ref": "#/rules@24"
+        },
+        "arguments": []
+      },
+      "definesHiddenTokens": false,
+      "entry": false,
+      "fragment": false,
+      "hiddenTokens": [],
+      "parameters": [],
+      "wildcard": false
+    },
+    {
+      "$type": "ParserRule",
+      "name": "ObjReference",
+      "definition": {
+        "$type": "Group",
         "elements": [
           {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@23"
-            },
-            "arguments": []
+            "$type": "Keyword",
+            "value": "@ref"
           },
           {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@22"
-            },
-            "arguments": []
+            "$type": "Keyword",
+            "value": "("
           },
           {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@20"
-            },
-            "arguments": []
+            "$type": "Assignment",
+            "feature": "reference",
+            "operator": "=",
+            "terminal": {
+              "$type": "CrossReference",
+              "type": {
+                "$ref": "#/rules@9"
+              },
+              "deprecatedSyntax": false
+            }
           },
           {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@21"
-            },
-            "arguments": []
-          },
-          {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@24"
-            },
-            "arguments": []
+            "$type": "Keyword",
+            "value": ")"
           }
         ]
       },
@@ -859,32 +931,37 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
     },
     {
       "$type": "ParserRule",
+      "name": "Text",
+      "dataType": "string",
+      "definition": {
+        "$type": "RuleCall",
+        "rule": {
+          "$ref": "#/rules@7"
+        },
+        "arguments": []
+      },
+      "definesHiddenTokens": false,
+      "entry": false,
+      "fragment": false,
+      "hiddenTokens": [],
+      "parameters": [],
+      "wildcard": false
+    },
+    {
+      "$type": "ParserRule",
       "name": "PlainText",
       "definition": {
-        "$type": "Group",
-        "elements": [
-          {
-            "$type": "Assignment",
-            "feature": "text",
-            "operator": "+=",
-            "terminal": {
-              "$type": "RuleCall",
-              "rule": {
-                "$ref": "#/rules@7"
-              },
-              "arguments": []
-            },
-            "cardinality": "+"
+        "$type": "Assignment",
+        "feature": "text",
+        "operator": "+=",
+        "terminal": {
+          "$type": "RuleCall",
+          "rule": {
+            "$ref": "#/rules@19"
           },
-          {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@25"
-            },
-            "arguments": [],
-            "cardinality": "+"
-          }
-        ]
+          "arguments": []
+        },
+        "cardinality": "+"
       },
       "definesHiddenTokens": false,
       "entry": false,
@@ -910,7 +987,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@17"
+                "$ref": "#/rules@19"
               },
               "arguments": []
             },
@@ -942,14 +1019,15 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "Assignment",
             "feature": "text",
-            "operator": "=",
+            "operator": "+=",
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@17"
+                "$ref": "#/rules@19"
               },
               "arguments": []
-            }
+            },
+            "cardinality": "+"
           },
           {
             "$type": "Keyword",
@@ -981,11 +1059,19 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@17"
+                "$ref": "#/rules@19"
               },
               "arguments": []
             },
             "cardinality": "+"
+          },
+          {
+            "$type": "RuleCall",
+            "rule": {
+              "$ref": "#/rules@28"
+            },
+            "arguments": [],
+            "cardinality": "*"
           }
         ]
       },
@@ -998,7 +1084,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
     },
     {
       "$type": "ParserRule",
-      "name": "Paragraph",
+      "name": "Block",
       "definition": {
         "$type": "Group",
         "elements": [
@@ -1012,7 +1098,49 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
                 {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@17"
+                    "$ref": "#/rules@21"
+                  },
+                  "arguments": []
+                },
+                {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@22"
+                  },
+                  "arguments": []
+                },
+                {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@20"
+                  },
+                  "arguments": []
+                },
+                {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@26"
+                  },
+                  "arguments": []
+                },
+                {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@25"
+                  },
+                  "arguments": []
+                },
+                {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@23"
+                  },
+                  "arguments": []
+                },
+                {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@27"
                   },
                   "arguments": []
                 },
@@ -1020,13 +1148,6 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
                   "$type": "RuleCall",
                   "rule": {
                     "$ref": "#/rules@18"
-                  },
-                  "arguments": []
-                },
-                {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@19"
                   },
                   "arguments": []
                 }
@@ -1037,7 +1158,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -1064,7 +1185,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -1074,37 +1195,18 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "feature": "content",
             "operator": "+=",
             "terminal": {
-              "$type": "Alternatives",
-              "elements": [
-                {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@17"
-                  },
-                  "arguments": []
-                },
-                {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@18"
-                  },
-                  "arguments": []
-                },
-                {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@19"
-                  },
-                  "arguments": []
-                }
-              ]
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@24"
+              },
+              "arguments": []
             },
-            "cardinality": "+"
+            "cardinality": "*"
           },
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -1116,7 +1218,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -1142,28 +1244,16 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           },
           {
             "$type": "Assignment",
-            "feature": "index",
-            "operator": "=",
+            "feature": "text",
+            "operator": "+=",
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@27"
+                "$ref": "#/rules@19"
               },
               "arguments": []
             },
-            "cardinality": "?"
-          },
-          {
-            "$type": "Assignment",
-            "feature": "text",
-            "operator": "=",
-            "terminal": {
-              "$type": "RuleCall",
-              "rule": {
-                "$ref": "#/rules@17"
-              },
-              "arguments": []
-            }
+            "cardinality": "+"
           }
         ]
       },
@@ -1187,7 +1277,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -1199,7 +1289,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@16"
+                "$ref": "#/rules@24"
               },
               "arguments": []
             },
@@ -1208,7 +1298,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"
@@ -1220,7 +1310,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@25"
+              "$ref": "#/rules@28"
             },
             "arguments": [],
             "cardinality": "*"

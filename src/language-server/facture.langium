@@ -21,7 +21,7 @@ fragment TypeAlternatives:
     typeAlternatives+=AtomType ('|' typeAlternatives+=AtomType)* EOL*;
 
 AtomType:
-    (primitiveType=PrimitiveType | refType=[AbstractType:ID] | keywordType=Keyword) isArray?='[]'?;
+    (primitiveType=PrimitiveType | refType=[AbstractType:ID] | keywordType=Keyword) isArray?='[]'? isFunction?='()'?;
 
  type AbstractType = Interface | GenericObject;
 
@@ -37,7 +37,12 @@ Keyword:
 GenericObject:
     'define' interface=[Interface] name=(ID) '{' EOL*
         properties+=(Property | PropertyArray)* EOL*
-        markdown+=Markdown* EOL*
+        render=RenderFunction? EOL*
+    '}' EOL*;
+
+RenderFunction:
+    'render()' '{' EOL*
+        markdown+=Markdown*
     '}' EOL*;
 
 Property:
@@ -61,34 +66,40 @@ ObjectRef:
     data=[GenericObject];
 
 Markdown:
-    (ListItem | BlockQuote | Header1 | Paragraph | Warning);
+    (Block);
+
+ObjReference:
+    '@ref' '('reference=[GenericObject] ')';
+
+Text returns string:
+    FeatureName;
 
 PlainText:
-    text+=(FeatureName)+ EOL+;
+    text+=Text+;
 
 Bold:
-    '**' text+=PlainText+ '**';
+    '**' text+=Text+ '**';
 
 Italic:
-    '*' text=PlainText '*';
+    '*' text+=Text+ '*';
 
 Header1:
-    '#' (text+=(PlainText)+);
+    '#' (text+=(Text)+) EOL*;
 
-Paragraph:
-    (content+=(PlainText | Bold | Italic))+ EOL*;
+Block:
+    (content+=(Bold | Italic | PlainText | ListItem | BlockQuote | Header1 | Warning | ObjReference))+ EOL*;
 
 BlockQuote:
     '<quote>' EOL*
-        content+=(PlainText | Bold | Italic)+ EOL*
+        content+=(Block)* EOL*
     '</quote>' EOL*;
 
 ListItem:
-    '-' index=INT? text=PlainText;
+    '-' text+=Text+;
 
 Warning:
     '<warning>' EOL* 
-        content+=Markdown* EOL*
+        content+=(Block)* EOL*
     '</warning>' EOL*;
 
 
