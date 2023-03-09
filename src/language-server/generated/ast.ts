@@ -55,7 +55,7 @@ export function isAtomType(item: unknown): item is AtomType {
 export interface Block extends AstNode {
     readonly $container: BlockQuote | RenderFunction | Warning;
     readonly $type: 'Block';
-    content: Array<BlockQuote | Bold | Header1 | Italic | ListItem | ObjReference | PlainText | Warning>
+    content: Array<BlockQuote | Bold | Header1 | InlineReference | Italic | ListItem | PlainText | Warning>
 }
 
 export const Block = 'Block';
@@ -113,6 +113,18 @@ export const Header1 = 'Header1';
 
 export function isHeader1(item: unknown): item is Header1 {
     return reflection.isInstance(item, Header1);
+}
+
+export interface InlineReference extends AstNode {
+    readonly $container: Block;
+    readonly $type: 'InlineReference';
+    reference: Reference<GenericObject>
+}
+
+export const InlineReference = 'InlineReference';
+
+export function isInlineReference(item: unknown): item is InlineReference {
+    return reflection.isInstance(item, InlineReference);
 }
 
 export interface IntegerType extends AstNode {
@@ -198,18 +210,6 @@ export const ObjectRef = 'ObjectRef';
 
 export function isObjectRef(item: unknown): item is ObjectRef {
     return reflection.isInstance(item, ObjectRef);
-}
-
-export interface ObjReference extends AstNode {
-    readonly $container: Block;
-    readonly $type: 'ObjReference';
-    reference: Reference<GenericObject>
-}
-
-export const ObjReference = 'ObjReference';
-
-export function isObjReference(item: unknown): item is ObjReference {
-    return reflection.isInstance(item, ObjReference);
 }
 
 export interface PlainText extends AstNode {
@@ -309,6 +309,7 @@ export interface FactureAstType {
     Bold: Bold
     GenericObject: GenericObject
     Header1: Header1
+    InlineReference: InlineReference
     IntegerType: IntegerType
     Interface: Interface
     Italic: Italic
@@ -316,7 +317,6 @@ export interface FactureAstType {
     ListItem: ListItem
     Markdown: Markdown
     Model: Model
-    ObjReference: ObjReference
     ObjectRef: ObjectRef
     PlainText: PlainText
     Property: Property
@@ -330,7 +330,7 @@ export interface FactureAstType {
 export class FactureAstReflection extends AbstractAstReflection {
 
     getAllTypes(): string[] {
-        return ['AbstractElement', 'AbstractType', 'AtomType', 'Block', 'BlockQuote', 'Bold', 'GenericObject', 'Header1', 'IntegerType', 'Interface', 'Italic', 'Keyword', 'ListItem', 'Markdown', 'Model', 'ObjReference', 'ObjectRef', 'PlainText', 'Property', 'PropertyArray', 'RenderFunction', 'StringType', 'TypeAttribute', 'Warning'];
+        return ['AbstractElement', 'AbstractType', 'AtomType', 'Block', 'BlockQuote', 'Bold', 'GenericObject', 'Header1', 'InlineReference', 'IntegerType', 'Interface', 'Italic', 'Keyword', 'ListItem', 'Markdown', 'Model', 'ObjectRef', 'PlainText', 'Property', 'PropertyArray', 'RenderFunction', 'StringType', 'TypeAttribute', 'Warning'];
     }
 
     protected override computeIsSubtype(subtype: string, supertype: string): boolean {
@@ -364,8 +364,8 @@ export class FactureAstReflection extends AbstractAstReflection {
             case 'GenericObject:interface': {
                 return Interface;
             }
-            case 'ObjectRef:data':
-            case 'ObjReference:reference': {
+            case 'InlineReference:reference':
+            case 'ObjectRef:data': {
                 return GenericObject;
             }
             default: {

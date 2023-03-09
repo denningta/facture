@@ -892,7 +892,7 @@ export const FactureGrammar = (): Grammar => loadedFactureGrammar ?? (loadedFact
     },
     {
       "$type": "ParserRule",
-      "name": "ObjReference",
+      "name": "InlineReference",
       "definition": {
         "$type": "Group",
         "elements": [

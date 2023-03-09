@@ -68,7 +68,7 @@ ObjectRef:
 Markdown:
     (Block);
 
-ObjReference:
+InlineReference:
     '@ref' '('reference=[GenericObject] ')';
 
 Text returns string:
@@ -87,7 +87,7 @@ Header1:
     '#' (text+=(Text)+) EOL*;
 
 Block:
-    (content+=(Bold | Italic | PlainText | ListItem | BlockQuote | Header1 | Warning | ObjReference))+ EOL*;
+    (content+=(Bold | Italic | PlainText | ListItem | BlockQuote | Header1 | Warning | InlineReference))+ EOL*;
 
 BlockQuote:
     '<quote>' EOL*

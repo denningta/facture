@@ -76,33 +76,36 @@ export class FactureValidator {
         const acceptor = (propertyType: string, allowedType: string) => 
             accept(
                 'error', 
-                `Type ${propertyType} is not assignable to type '${allowedType}'`, 
+                `Type '${propertyType}' is not assignable to type '${allowedType}'`, 
                 { node: property, property: 'value' }
             )
 
+        const interfaceTypeTitles: string[] = []
+        let objectTypeTitle: string = ''
+
         allowedInterfaceTypes?.forEach(allowedType => {
             if (!value) return
-            const propertyTypeTitle = this.getPropertyTypeTitle(value)
-            const allowedTypeTitle = this.getTypeTitle(allowedType) ?? 'undefined'
-
-            if (propertyTypeTitle !== allowedTypeTitle || allowedType.isArray) 
-                acceptor(this.getPropertyTypeTitle(value), allowedTypeTitle)
+            objectTypeTitle = this.getObjectTypeTitle(value, allowedType)
+            interfaceTypeTitles.push(this.getInterfaceTypeTitle(allowedType) ?? 'undefined')
         })
+
+        if (!interfaceTypeTitles.includes(objectTypeTitle)) 
+            acceptor(objectTypeTitle, interfaceTypeTitles.join(' | '))
+        
     }
 
     checkPropertyHasCorrectArrayType(property: Property | PropertyArray, accept: ValidationAcceptor): void {
         if (!Array.isArray(property.value)) return
         const allowedInterfaceTypes = this.getAllowedInterfaceTypes(property)
         const values = property.value
-        const arrayTypes = this.filterUnique(values.map(element => this.getPropertyTypeTitle(element)))
-
 
         allowedInterfaceTypes?.forEach(allowedType => {
+            const arrayTypes = this.filterUnique(values.map(element => this.getObjectTypeTitle(element, allowedType)))
             const interfaceType = this.getType(allowedType) ?? 'undefined'
             const acceptor = (propertyType: string, allowedType: string, info: DiagnosticInfo<AstNode, string>) => 
                 accept(
                     'error',
-                    `Type ${propertyType} is not assignable to type ${allowedType}`,
+                    `Type '${propertyType}' is not assignable to type '${allowedType}'`,
                     info
                 )
 
@@ -112,9 +115,9 @@ export class FactureValidator {
 
             if (arrayTypes.length > 1) {
                 values.forEach((value, index) => {
-                    const propertyTypeTitle = this.getPropertyTypeTitle(value)
+                    const propertyTypeTitle = this.getObjectTypeTitle(value, allowedType)
                     if (propertyTypeTitle !== interfaceType.base) 
-                        acceptor(this.getPropertyTypeTitle(value), interfaceType.title, { node: value, property: 'value' })
+                        acceptor(this.getObjectTypeTitle(value, allowedType), interfaceType.title, { node: value, property: 'value' })
                 })
             }
 
@@ -124,8 +127,11 @@ export class FactureValidator {
 
     }
 
-    private getPropertyTypeTitle(element: AbstractElement): string {
-        if (element.$type === 'StringType') return 'string'
+    private getObjectTypeTitle(element: AbstractElement, allowedType: AtomType): string {
+        if (element.$type === 'StringType') {
+            if (allowedType.keywordType) return element.data
+            return 'string'
+        }
         if (element.$type === 'IntegerType') return 'number'
         if (element.$type === 'GenericObject') return element.interface.$refText
         if (element.$type === 'ObjectRef') return element.data.ref?.interface.$refText ?? 'undefined'
@@ -142,9 +148,10 @@ export class FactureValidator {
         )?.typeAlternatives
     }
 
-    private getTypeTitle(atomType: AtomType) {
+    private getInterfaceTypeTitle(atomType: AtomType) {
         return (atomType.primitiveType && (atomType.primitiveType + (atomType.isArray ? '[]' : '')))
         ?? (atomType.refType && atomType.refType?.$refText + (atomType.isArray ? '[]' : ''))
+        ?? (atomType.keywordType && atomType.keywordType.value)
     }
 
     private getType(atomType: AtomType) {

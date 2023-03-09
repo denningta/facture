@@ -57,7 +57,7 @@ describe('Markdown', () => {
 				assert.fail(`expected type \'Paragraph\' but received type ${markdown[0].$type}`)
 			expect(markdown[0].content[1].$type).to.equal('Bold')
 			expect(markdown[0].content[3].$type).to.equal('Italic')
-			expect(markdown[0].content[5].$type).to.equal('ObjReference')
+			expect(markdown[0].content[5].$type).to.equal('InlineReference')
 		})
 	})
 
@@ -92,7 +92,7 @@ describe('Markdown', () => {
 		const tests = [
 			{ input: '**bold text**', expectedType: 'Bold' },
 			{ input: '*italic text*', expectedType: 'Italic' },
-			{ input: '@ref(PRT002)', expectedType: 'ObjReference'},
+			{ input: '@ref(PRT002)', expectedType: 'InlineReference'},
 			{ input: '- list item', expectedType: 'ListItem'},
 			{ 
 				input: `
