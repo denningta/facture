@@ -7,7 +7,7 @@ import { FactureValidator, registerValidationChecks } from './facture-validator'
 import FactureSematicTokenProvider from './facture-token-provider';
 import { FactureCompletionProvider } from './facture-completion-provider';
 import { FactureWorkspaceManager } from './facture-workspace-manager';
-
+import { FactureScopeProvider } from './facture-scope-provider';
 /**
  * Declaration of custom services - add your own service classes here.
  */
@@ -18,7 +18,7 @@ export type FactureAddedServices = {
     },
     workspace: {
         WorkspaceManager: FactureWorkspaceManager
-    }
+    },
 }
 
 /**
@@ -36,18 +36,16 @@ export const FactureModule: Module<FactureServices, PartialLangiumServices & Fac
     validation: {
         FactureValidator: () => new FactureValidator()
     },
+    references: {
+        ScopeProvider: (services) => new FactureScopeProvider(services)
+    },
     lsp: {
         SemanticTokenProvider: (services) => new FactureSematicTokenProvider(services),
-        CompletionProvider: (services) => new FactureCompletionProvider(services)
+        CompletionProvider: (services) => new FactureCompletionProvider(services),
     },
     workspace: {
         WorkspaceManager: (services) => new FactureWorkspaceManager(services.shared)
-    }
-    // shared: {
-    //     workspace: {
-    //         WorkspaceManager: (services) => new FactureWorkspaceManager(services.shared)
-    //     }
-    // }
+    },
 };
 
 /**
